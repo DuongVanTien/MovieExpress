@@ -1,10 +1,11 @@
 package vn.framgia.dao.impl;
 
-import org.hibernate.CacheMode;
-import org.hibernate.Criteria;
-import org.hibernate.LockMode;
+import org.hibernate.*;
 import org.hibernate.criterion.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.io.Serializable;
 import java.util.List;
@@ -12,7 +13,15 @@ import java.util.List;
 /**
  * @author ducda referenced from CaveatEmptor project tm JBoss Hibernate version
  */
-public abstract class GenericDAO<E, Id extends Serializable> extends HibernateDaoSupport {
+public abstract class GenericDAO<E, Id extends Serializable> {
+	
+	@Autowired
+	SessionFactory sessionFactory;
+
+	public Session getSession() {
+		return this.sessionFactory.openSession();
+	}
+	
 	private Class<E> persistentClass;
 
 	public Class<E> getPersistentClass() {
@@ -24,7 +33,7 @@ public abstract class GenericDAO<E, Id extends Serializable> extends HibernateDa
 	}
 
 	public E findById(Id id) {
-		Criteria criteria = getSession().createCriteria(getPersistentClass());
+		Criteria criteria = sessionFactory.openSession().createCriteria(getPersistentClass());
 		criteria.add(Restrictions.eq("id", id));
 		Object obj = criteria.uniqueResult();
 		if (obj == null) {
@@ -37,18 +46,18 @@ public abstract class GenericDAO<E, Id extends Serializable> extends HibernateDa
 	public E findById(Id id, boolean lock) {
 		E entity;
 
-		getSession().setCacheMode(CacheMode.PUT);
+		sessionFactory.openSession().setCacheMode(CacheMode.PUT);
 		if (lock)
-			entity = (E) getSession().get(getPersistentClass(), id, LockMode.UPGRADE);
+			entity = (E) sessionFactory.openSession().get(getPersistentClass(), id, LockMode.UPGRADE);
 		else
-			entity = (E) getSession().get(getPersistentClass(), id);
+			entity = (E) sessionFactory.openSession().get(getPersistentClass(), id);
 		if (entity != null)
-			getSession().refresh(entity);
+			sessionFactory.openSession().refresh(entity);
 		if (entity == null) {
-			getSession().load(getPersistentClass(), id);
+			sessionFactory.openSession().load(getPersistentClass(), id);
 		}
 		if (entity != null)
-			getSession().refresh(entity);
+			sessionFactory.openSession().refresh(entity);
 		return entity;
 	}
 
@@ -62,7 +71,7 @@ public abstract class GenericDAO<E, Id extends Serializable> extends HibernateDa
 	// excludeProperty la mot mang String chua ten cac property ma ta ko muon
 	// dua vao tieu chi tim kiem
 	public List<E> findByExample(E exampleInstance, String[] excludeProperty) {
-		Criteria crit = getSession().createCriteria(getPersistentClass());
+		Criteria crit = sessionFactory.openSession().createCriteria(getPersistentClass());
 		Example example = Example.create(exampleInstance);
 		for (String exclude : excludeProperty) {
 			example.excludeProperty(exclude);
@@ -73,7 +82,7 @@ public abstract class GenericDAO<E, Id extends Serializable> extends HibernateDa
 
 	// return number of row when Searching
 	public int count(E exampleInstance, String[] excludeProperty, boolean isLike) {
-		Criteria crit = getSession().createCriteria(getPersistentClass());
+		Criteria crit = sessionFactory.openSession().createCriteria(getPersistentClass());
 		Example example = Example.create(exampleInstance);
 		for (String exclude : excludeProperty) {
 			example.excludeProperty(exclude);
@@ -85,12 +94,12 @@ public abstract class GenericDAO<E, Id extends Serializable> extends HibernateDa
 	}
 
 	public Long count() {
-		return  (Long)getSession().createCriteria(this.getPersistentClass()).setProjection(Projections.rowCount())
+		return  (Long)sessionFactory.openSession().createCriteria(this.getPersistentClass()).setProjection(Projections.rowCount())
 				.uniqueResult();
 	}
 
 	public int count(Criterion... criterion) {
-		Criteria crit = getSession().createCriteria(getPersistentClass());
+		Criteria crit = sessionFactory.openSession().createCriteria(getPersistentClass());
 		for (Criterion c : criterion) {
 			crit.add(c);
 		}
@@ -99,20 +108,19 @@ public abstract class GenericDAO<E, Id extends Serializable> extends HibernateDa
 
 	@SuppressWarnings("unchecked")
 	public E save(E entity) {
-		getSession().saveOrUpdate(entity);
-		getSession().flush();
-
+		sessionFactory.openSession().saveOrUpdate(entity);
+		sessionFactory.openSession().flush();
 		return entity;
 	}
 
 	public void delete(E entity) {
-		getSession().delete(entity);
-		getSession().flush();
+		sessionFactory.openSession().delete(entity);
+		sessionFactory.openSession().flush();
 	}
 
 	@SuppressWarnings("unchecked")
 	public List<E> findByCriteria(Criterion... criterion) {
-		Criteria crit = getSession().createCriteria(getPersistentClass());
+		Criteria crit = sessionFactory.openSession().createCriteria(getPersistentClass());
 		for (Criterion c : criterion) {
 			crit.add(c);
 		}
@@ -121,10 +129,17 @@ public abstract class GenericDAO<E, Id extends Serializable> extends HibernateDa
 
 	@SuppressWarnings("unchecked")
 	public List<E> list(Integer offset, Integer maxResults) {
-		return getSession().createCriteria(getPersistentClass())
+		return sessionFactory.openSession().createCriteria(getPersistentClass())
 				.setFirstResult(offset!=null?offset:0)
 				.setMaxResults(maxResults!=null?maxResults:15)
 				.list();
+	}
+
+	@SuppressWarnings("unchecked")
+	public E save(E entity, Session session) {
+		session.saveOrUpdate(entity);
+		session.flush();
+		return entity;
 	}
 
 }
