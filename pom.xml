@@ -11,7 +11,7 @@
 		<org.springframework-version>4.1.6.RELEASE</org.springframework-version>
 		<spring.security.version>3.2.3.RELEASE</spring.security.version>
 		<mysql.connector.version>5.1.30</mysql.connector.version>
-		<hibernate.version>3.6.0.Final</hibernate.version>
+		<hibernate.version>4.1.0.Final</hibernate.version>
 		<org.aspectj-version>1.6.10</org.aspectj-version>
 		<org.slf4j-version>1.6.6</org.slf4j-version>
 		<dbcp.version>1.4</dbcp.version>
@@ -100,11 +100,11 @@
 			<artifactId>hibernate-core</artifactId>
 			<version>${hibernate.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-validator</artifactId>
-			<version>3.1.0.GA</version>
-		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>org.hibernate</groupId>-->
+			<!--<artifactId>hibernate-validator</artifactId>-->
+			<!--<version>${hibernate.version}</version>-->
+		<!--</dependency>-->
 
 		<!-- MySql Driver -->
 		<dependency>
@@ -222,6 +222,12 @@
 			<groupId>org.apache.tiles</groupId>
 			<artifactId>tiles-template</artifactId>
 			<version>${tiles-version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.8.1</version>
 		</dependency>
 	</dependencies>
 

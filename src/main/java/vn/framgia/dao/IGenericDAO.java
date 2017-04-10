@@ -1,5 +1,6 @@
 package vn.framgia.dao;
 
+import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 
 import java.io.Serializable;
@@ -27,5 +28,9 @@ public interface IGenericDAO<E, Id extends Serializable> extends Serializable {
 	public List<E> findByCriteria(Criterion... criterion);
 
 	public List<E> list(Integer offset, Integer maxResults);
+
+	public Session getSession();
+
+	public E save(E entity, Session session);
 	
 }
