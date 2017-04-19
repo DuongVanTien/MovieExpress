@@ -1,11 +1,9 @@
 package vn.framgia.dao.impl;
 
+import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import vn.framgia.dao.IFilmDAO;
 import vn.framgia.model.Film;
-import org.hibernate.Criteria;
-import org.hibernate.criterion.Restrictions;
-import java.util.List;
 
 /**
  * Created by FRAMGIA\duong.van.tien on 10/04/2017.
@@ -14,5 +12,16 @@ import java.util.List;
 public class FilmDAOImpl extends GenericDAO<Film, Integer> implements IFilmDAO {
     public FilmDAOImpl() {
         super.setPersistentClass(Film.class);
+    }
+
+    @Override
+    public boolean deleteFilm(Integer id) {
+        String hql = "delete from Film where id = :id";
+        Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(hql);
+        query.setParameter("id", id);
+        if (query == null)
+            return false;
+        query.executeUpdate();
+        return true;
     }
 }

@@ -10,4 +10,6 @@ import java.util.List;
  */
 public interface IScheduleDAO extends IGenericDAO<Schedule, Integer> {
     public List<Schedule> findScheduleToday(String today);
+    public List findFilmIdByDate(String day, String cityName);
+    public boolean deleteScheduleByFilmId(Integer id);
 }

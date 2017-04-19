@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import org.springframework.transaction.annotation.Propagation;
 
 /**
  * Created by FRAMGIA\duong.van.tien on 10/04/2017.
@@ -30,8 +31,14 @@ public class IFilmServiceImpl extends BaseserviceImpl implements IFilmService {
     private static final Logger logger = Logger.getLogger(CityServiceImpl.class);
 
     @Override
-    public boolean cloneData(String cityName) {
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
+    public boolean cloneData(String cityName) throws Exception {
         try {
+            List<Integer> listFilmIds = iScheduleDAO.findFilmIdByDate(Helpers.convertDatetoString(new Date()), cityName);
+            for (Integer filmId : listFilmIds) {
+                iFilmDAO.deleteFilm(filmId);
+                iScheduleDAO.deleteScheduleByFilmId(filmId);
+            }
             String urlCloneData = Constant.URL_ORIGIN+cityName;
             Document document = Jsoup.connect(urlCloneData).userAgent(Constant.USERAGENT).get();
             Elements listCinemasName = document.select("div[id=content_cinema] h2[class=title-cine]");
@@ -63,8 +70,8 @@ public class IFilmServiceImpl extends BaseserviceImpl implements IFilmService {
             return true;
         } catch (Exception e) {
             logger.error("Exception at function cloneData in IFilmServiceImpl : ", e);
+            throw e;
         }
-        return false;
     }
 
     @Override

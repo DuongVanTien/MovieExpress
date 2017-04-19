@@ -12,4 +12,6 @@ public interface IGenericDAO<E, Id extends Serializable> extends Serializable {
 	public void delete(E entity);
 
 	public List<E> list(Integer offset, Integer maxResults, String cityName);
+
+	public E findById(Id id);
 }

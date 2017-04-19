@@ -63,4 +63,15 @@ public abstract class GenericDAO<E, Id extends Serializable> extends HibernateDa
 				.setProjection(Projections.rowCount())
 				.uniqueResult();
 	}
+
+	public E findById(Id id) {
+		Criteria criteria = getHibernateTemplate().getSessionFactory()
+				.getCurrentSession().createCriteria(this.getPersistentClass());
+		criteria.add(Restrictions.eq("id", id));
+		Object obj = criteria.uniqueResult();
+		if (obj == null) {
+			return null;
+		}
+		return (E) obj;
+	}
 }

@@ -10,4 +10,5 @@ import java.util.List;
 public interface IFilmDAO extends IGenericDAO<Film, Integer> {
     public Film save(Film Film);
     public Long count();
+    public boolean deleteFilm(Integer id);
 }
